@@ -39,6 +39,15 @@ class ImageClassifier:
         print("Animal Classifier ready!")
         print(f"Target categories: {list(self.animal_categories.keys())}")
 
+        # Simple fun-fact / description dictionary (extend as you like)
+        self.fun_facts = {
+            "dog": "Dogs have a sense of smell up to 100,000 times stronger than humans.",
+            "cat": "Cats spend around 70% of their lives sleeping.",
+            "bird": "Some birds can see ultraviolet light, which humans cannot.",
+            "other_animal": "Many animals can see better at night than humans thanks to a special reflective eye layer.",
+            "non_animal": "No animal detected, but that is still an interesting scene!"
+        }
+
     def _get_labels(self):
         """Download ImageNet labels"""
         LABELS_URL = "https://raw.githubusercontent.com/anishathalye/imagenet-simple-labels/master/imagenet-simple-labels.json"
@@ -234,12 +243,16 @@ class ImageClassifier:
         """Save classification metadata as JSON"""
         import json
         from datetime import datetime
-        
+        # Choose a description based on category (fall back to stripped key)
+        key = category if category in getattr(self, 'fun_facts', {}) else category.replace('_', '')
+        description = getattr(self, 'fun_facts', {}).get(key, '')
+
         metadata = {
             'filename': os.path.basename(image_path),
             'ai_label': label,
             'confidence': f"{confidence:.2%}",
             'category': category,
+            'description': description,
             'timestamp': datetime.now().isoformat(),
             'is_animal': category != 'non_animal'
         }
