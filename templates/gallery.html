@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDK Animal Photo Gallery - AI Classified</title>
+    <title>Zoo Camera - Animal Detection & Classification</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c5f2d 0%, #1a3a1b 100%);
             min-height: 100vh;
             padding: 20px;
             color: #333;
@@ -22,24 +22,32 @@
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.97);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
         
         header {
             text-align: center;
             margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #764ba2;
+            padding-bottom: 25px;
+            border-bottom: 4px solid #d4a574;
+            background: linear-gradient(to bottom, #f5f5f5 0%, transparent 100%);
+            border-radius: 15px;
+            padding-top: 20px;
         }
         
         h1 {
-            color: #764ba2;
-            font-size: 2.8em;
+            background: linear-gradient(135deg, #8B4513 0%, #CD853F 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3.2em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            letter-spacing: 1px;
         }
         
         .subtitle {
@@ -48,37 +56,48 @@
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.6;
+            font-weight: 500;
         }
         
         .stats-bar {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            background: linear-gradient(135deg, #764ba2 0%, #9b59b6 100%);
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
             color: white;
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(139, 69, 19, 0.3);
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-3px);
         }
         
         .stat-value {
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: bold;
-            margin-bottom: 5px;
-            color: #ffd166;
+            margin-bottom: 8px;
+            color: #FFD700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .stat-label {
-            font-size: 1em;
-            opacity: 0.9;
+            font-size: 1.05em;
+            opacity: 0.95;
+            font-weight: 500;
         }
         
         .filter-stats {
@@ -86,25 +105,37 @@
             justify-content: center;
             gap: 15px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 10px;
+            margin-bottom: 30px;
         }
         
         .filter-badge {
-            background: #3498db;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.95em;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
         }
         
         .filter-count {
             background: white;
-            color: #3498db;
-            padding: 2px 8px;
-            border-radius: 10px;
+            color: #FF6B6B;
+            padding: 2px 10px;
+            border-radius: 12px;
             font-weight: bold;
         }
         
@@ -112,13 +143,15 @@
             margin-bottom: 50px;
             background: white;
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+            border-left: 6px solid #D2691E;
         }
         
         .category-section:hover {
             transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
         }
         
         .category-header {
@@ -127,27 +160,33 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 3px solid #e0e0e0;
         }
         
         .category-title {
-            color: #667eea;
-            font-size: 1.8em;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2em;
             display: flex;
             align-items: center;
             gap: 15px;
+            font-weight: bold;
         }
         
         .category-icon {
-            font-size: 1.5em;
+            font-size: 2.2em;
         }
         
         .category-count {
-            background: #667eea;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 8px 20px;
+            border-radius: 25px;
             font-weight: bold;
+            font-size: 1.05em;
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
         }
         
         .gallery-grid {
@@ -158,22 +197,25 @@
         
         .gallery-item {
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 15px;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            border: 2px solid #f0f0f0;
         }
         
         .gallery-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            transform: scale(1.06) translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+            border-color: #D2691E;
         }
         
         .image-container {
             position: relative;
             width: 100%;
-            height: 200px;
+            height: 220px;
             overflow: hidden;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
         }
         
         .gallery-item img {
@@ -181,38 +223,46 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            transition: transform 0.4s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.08);
         }
         
         .image-filter {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            top: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(30, 30, 30, 0.9) 100%);
             color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 18px;
+            font-size: 0.85em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
         .image-info {
-            padding: 15px;
+            padding: 18px;
+            background: white;
         }
         
         .image-name {
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 1.05em;
         }
         
         .image-details {
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            font-size: 0.9em;
+            gap: 7px;
+            font-size: 0.92em;
             color: #666;
         }
         
@@ -223,37 +273,249 @@
         }
         
         .detail-label {
-            font-weight: 500;
+            font-weight: 600;
             color: #555;
+            min-width: 85px;
         }
         
         .category-tag {
             display: inline-block;
-            background: #667eea;
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
             color: white;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.9em;
-            font-weight: 500;
-            margin-top: 10px;
+            font-weight: 600;
+            margin-top: 12px;
+            box-shadow: 0 3px 10px rgba(139, 69, 19, 0.15);
         }
         
         .ai-confidence {
             color: #27ae60;
             font-weight: bold;
         }
+
+        .image-desc {
+            color: #444;
+            font-size: 0.95em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-top: 6px;
+            flex: 1 1 auto;
+        }
         
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #888;
-            font-size: 1.2em;
+            font-size: 1.3em;
         }
         
         .empty-state i {
-            font-size: 3em;
+            font-size: 4em;
             margin-bottom: 20px;
             color: #ccc;
+        }
+        
+        /* Image Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2.5em;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.2);
+            color: #FFD700;
+        }
+        
+        .modal-image-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .filter-preview-image {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: filter 0.3s ease;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #D2691E;
+            background: white;
+            color: #D2691E;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .filter-btn:hover {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.3);
+        }
+        
+        .modal-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #D2691E;
+            margin-top: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        /* Collapsible Category Styles */
+        .category-section {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .category-header {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-header:hover {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 0%, rgba(210, 105, 30, 0.05) 100%);
+            padding: 15px;
+            margin: -15px -15px 0 -15px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .expand-icon {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 1.3em;
+            margin-right: 10px;
+            color: #D2691E;
+            font-weight: bold;
+        }
+        
+        .expand-icon.collapsed {
+            transform: rotate(0deg);
+        }
+        
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .gallery-grid {
+            /* allow gallery to grow naturally so all images are reachable by scrolling */
+            transition: opacity 0.25s ease, padding 0.25s ease;
+            opacity: 1;
+            padding: 25px 0 0 0;
+        }
+        
+        .gallery-grid.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .category-section .empty-state {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.4s ease,
+                        padding 0.4s ease;
+            opacity: 1;
+            padding: 60px 20px;
+        }
+        
+        .category-section .empty-state.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+            overflow: hidden;
         }
         
         @media (max-width: 768px) {
@@ -263,7 +525,7 @@
             }
             
             h1 {
-                font-size: 2em;
+                font-size: 2.2em;
             }
             
             .container {
@@ -273,14 +535,18 @@
             .stats-bar {
                 grid-template-columns: 1fr;
             }
+            
+            .category-title {
+                font-size: 1.5em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🐾 RDK AI Photo Gallery</h1>
-            <p class="subtitle">Photos automatically classified by AI with real-time filters applied. Capture from RDK, view here.</p>
+            <h1>🦁 Zoo Camera Network</h1>
+            <p class="subtitle">Real-time AI animal detection and classification from your zoo cameras. Photos are automatically classified with confidence scores.</p>
         </header>
         
         {% set total_images = namespace(count=0) %}
@@ -305,7 +571,7 @@
         
         {% if filter_stats %}
         <div class="filter-stats">
-            <h3 style="width: 100%; text-align: center; margin-bottom: 15px; color: #555;">Filter Usage:</h3>
+            <h3 style="width: 100%; text-align: center; margin-bottom: 10px; color: #333; font-weight: 600;">📸 Filter Usage Statistics:</h3>
             {% for filter_name, count in filter_stats.items() %}
             <div class="filter-badge">
                 {{ filter_name }}
@@ -316,10 +582,12 @@
         {% endif %}
         
         {% if categories %}
+        <div style="margin-top: 30px;">
             {% for category, images in categories.items() %}
-            <div class="category-section">
+            <div class="category-section" data-category="{{ category }}">
                 <div class="category-header">
                     <h2 class="category-title">
+                        <span class="expand-icon collapsed">▶</span>
                         <span class="category-icon">
                             {% if category == 'dog' %}🐕
                             {% elif category == 'cat' %}🐈
@@ -336,9 +604,9 @@
                 </div>
                 
                 {% if images %}
-                <div class="gallery-grid">
+                <div class="gallery-grid collapsed">
                     {% for image in images %}
-                    <div class="gallery-item">
+                    <div class="gallery-item" onclick="openImageModal(event, '{{ image.url }}', '{{ image.name }}', '{{ image.ai_label }}', '{{ image.confidence }}', '{{ image.time }}', '{{ image.filter }}', '{{ image.description|replace("'", "\\'") }}')">
                         <div class="image-container">
                             <img src="{{ image.url }}" alt="{{ image.name }}" loading="lazy">
                             {% if image.filter != 'Normal' %}
@@ -360,6 +628,10 @@
                                     <span class="detail-label">Time:</span>
                                     <span>{{ image.time }}</span>
                                 </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">About:</span>
+                                    <span class="image-desc">{{ image.description if image.description else 'No description available' }}</span>
+                                </div>
                             </div>
                             <span class="category-tag">{{ image.category }}</span>
                         </div>
@@ -367,21 +639,165 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="empty-state">
+                <div class="empty-state collapsed">
                     <div>📭</div>
                     <p>No photos in this category yet.</p>
                 </div>
                 {% endif %}
             </div>
             {% endfor %}
+        </div>
         {% else %}
         <div class="empty-state">
             <div>📷</div>
-            <h3>No photos yet!</h3>
-            <p>Start capturing photos with your RDK to see them appear here automatically.</p>
-            <p>Press the capture button on your RDK to take your first photo.</p>
+            <h3 style="margin-top: 15px; color: #666;">No photos captured yet</h3>
+            <p style="margin-top: 10px;">The zoo cameras will start appearing here once they capture their first animal.</p>
         </div>
         {% endif %}
     </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal">
+        <span class="modal-close" onclick="closeImageModal()">&times;</span>
+        <div class="modal-content">
+            <div class="modal-image-container">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="applyFilterPreview(this, 'normal')">
+                        📷 Normal
+                    </button>
+                    <button class="filter-btn" onclick="applyFilterPreview(this, 'bw')">
+                        ⚫ Black & White
+                    </button>
+                    <button class="filter-btn" onclick="applyFilterPreview(this, 'vintage')">
+                        🎨 Vintage
+                    </button>
+                </div>
+                <img id="previewImage" class="filter-preview-image" src="" alt="Preview">
+            </div>
+            
+            <div class="modal-info">
+                <div class="info-row">
+                    <span class="info-label">Filename:</span>
+                    <span class="info-value" id="modalFileName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">AI Classification:</span>
+                    <span class="info-value" id="modalAILabel">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Confidence Score:</span>
+                    <span class="info-value" id="modalConfidence">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Captured Time:</span>
+                    <span class="info-value" id="modalTime">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Applied Filter:</span>
+                    <span class="info-value" id="modalFilter">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value" id="modalDescription">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentImageUrl = '';
+        let currentFilter = 'normal';
+
+        function openImageModal(event, imageUrl, imageName, aiLabel, confidence, time, filter, description) {
+            event.stopPropagation();
+            currentImageUrl = imageUrl;
+            currentFilter = 'normal';
+            
+            const modal = document.getElementById('imageModal');
+            const previewImage = document.getElementById('previewImage');
+            
+            previewImage.src = imageUrl;
+            document.getElementById('modalFileName').textContent = imageName;
+            document.getElementById('modalAILabel').textContent = aiLabel;
+            document.getElementById('modalConfidence').textContent = confidence;
+            document.getElementById('modalTime').textContent = time;
+            document.getElementById('modalFilter').textContent = filter;
+            document.getElementById('modalDescription').textContent = description || '';
+            
+            // Reset filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.filter-btn')[0].classList.add('active');
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            currentFilter = 'normal';
+            applyFilter(document.getElementById('previewImage'), 'normal');
+        }
+
+        function applyFilterPreview(button, filterName) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            currentFilter = filterName;
+            const img = document.getElementById('previewImage');
+            applyFilter(img, filterName);
+        }
+
+        function applyFilter(img, filterName) {
+            if (filterName === 'normal') {
+                img.style.filter = 'none';
+            } else if (filterName === 'bw') {
+                img.style.filter = 'grayscale(1) contrast(1.1)';
+            } else if (filterName === 'vintage') {
+                img.style.filter = 'sepia(0.6) saturate(0.8) contrast(0.9) brightness(1.1)';
+            }
+        }
+
+        // Close modal when clicking outside of it
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                closeImageModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        // Initialize category sections
+        document.querySelectorAll('.category-section').forEach(section => {
+            const header = section.querySelector('.category-header');
+            const expandIcon = section.querySelector('.expand-icon');
+            const galleryGrid = section.querySelector('.gallery-grid');
+            const emptyState = section.querySelector('.empty-state');
+            const content = galleryGrid || emptyState;
+            
+            // Add click handler to expand/collapse
+            header.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Toggle classes
+                if (expandIcon) {
+                    expandIcon.classList.toggle('collapsed');
+                    expandIcon.classList.toggle('expanded');
+                }
+                
+                if (content) {
+                    content.classList.toggle('collapsed');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
